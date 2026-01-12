@@ -1,21 +1,28 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AstroGuard – Orbit Simulation</title>
+<meta charset="UTF-8">
+<title>AstroGuard Orbit Simulation</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <div class="ui">
-    <button id="trailToggle">Show Trails</button>
-  </div>
 
-  <canvas id="orbitCanvas"></canvas>
+<div class="ui">
+  <button id="trailToggle">Show Trails</button>
+  <button id="playPause">Pause</button>
 
-  <!-- JS -->
-  <script src="simulation.js"></script>
+  <label>
+    Speed
+    <input type="range" id="speedSlider" min="1" max="100" value="50">
+  </label>
+</div>
+
+<canvas id="orbitCanvas"></canvas>
+
+<script src="simulation.js"></script>
 </body>
 </html>
+

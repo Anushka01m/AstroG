@@ -1,9 +1,10 @@
+
 body {
   margin: 0;
-  background: black;
   overflow: hidden;
+  background: black;
   color: white;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
 }
 
 canvas {
@@ -11,15 +12,12 @@ canvas {
 }
 
 .ui {
-  position: absolute;
+  position: fixed;
   top: 10px;
   left: 10px;
+  z-index: 10;
 }
 
-button {
-  background: #111;
-  color: white;
-  border: 1px solid #444;
-  padding: 6px 12px;
-  cursor: pointer;
+button, input {
+  margin: 5px;
 }

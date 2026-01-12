@@ -1,3 +1,4 @@
+
 // ================= CANVAS =================
 const canvas = document.getElementById("orbitCanvas");
 const ctx = canvas.getContext("2d");
@@ -41,11 +42,25 @@ createStars();
 
 // ================= UI =================
 let showTrails = false;
+let isPaused = false;
+let speedMultiplier = 1;
+
 const trailBtn = document.getElementById("trailToggle");
+const playPauseBtn = document.getElementById("playPause");
+const speedSlider = document.getElementById("speedSlider");
 
 trailBtn.onclick = () => {
   showTrails = !showTrails;
   trailBtn.innerText = showTrails ? "Hide Trails" : "Show Trails";
+};
+
+playPauseBtn.onclick = () => {
+  isPaused = !isPaused;
+  playPauseBtn.innerText = isPaused ? "Play" : "Pause";
+};
+
+speedSlider.oninput = () => {
+  speedMultiplier = speedSlider.value / 50;
 };
 
 // ================= EARTH =================
@@ -70,7 +85,6 @@ const COUNT = 18;
 for (let i = 0; i < COUNT; i++) {
   let a, b;
 
-  // Force some near-collision orbits
   if (i < 3) {
     a = 30 + Math.random() * 15;
     b = a * (0.8 + Math.random() * 0.1);
@@ -99,7 +113,7 @@ function updateAsteroid(a) {
   const dy = y - cy();
   const r = Math.sqrt(dx * dx + dy * dy);
 
-  const speed = GRAVITY_SCALE / Math.sqrt(r);
+  const speed = (GRAVITY_SCALE / Math.sqrt(r)) * speedMultiplier;
 
   a.vx = -Math.sin(a.angle) * speed * a.a;
   a.vy =  Math.cos(a.angle) * speed * a.b;
@@ -176,6 +190,10 @@ function drawAsteroid(a) {
 
 // ================= LOOP =================
 function animate() {
+  requestAnimationFrame(animate);
+
+  if (isPaused) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawStars();
@@ -186,8 +204,7 @@ function animate() {
     checkCollision(a);
     drawAsteroid(a);
   });
-
-  requestAnimationFrame(animate);
 }
 
 animate();
+

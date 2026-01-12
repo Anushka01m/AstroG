@@ -10,12 +10,44 @@ body{margin:0;background:black;overflow:hidden;color:white}
 .label{position:absolute;top:10px;left:10px;font-size:14px}
 canvas{display:block}
 </style>
+  <meta charset="UTF-8" />
+  <title>AstroGuard – Physics-Based Orbit Simulation</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+
+    button {
+      background: #111;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="label">
 AstroGuard – Starfield Background + Collision System
+<div class="ui">
+  <button id="trailToggle">Show Trails</button>
 </div>
 
 <canvas id="orbitCanvas"></canvas>
@@ -47,12 +79,51 @@ function createStars(){
       y:Math.random()*canvas.height,
       r:Math.random()*1.5,
       alpha:0.3+Math.random()*0.7
+  const canvas = document.getElementById("orbitCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  const cx = () => canvas.width / 2;
+  const cy = () => canvas.height / 2;
+
+  let showTrails = false;
+  document.getElementById("trailToggle").onclick = () => {
+    showTrails = !showTrails;
+    document.getElementById("trailToggle").innerText =
+      showTrails ? "Hide Trails" : "Show Trails";
+  };
+
+  const earth = { radius: 20, color: "deepskyblue" };
+  const GRAVITY_SCALE = 0.15;
+
+  const ASTEROID_COUNT = 18;
+  const MAX_TRAIL_LENGTH = 25;
+
+  const asteroids = [];
+
+  for (let i = 0; i < ASTEROID_COUNT; i++) {
+    const a = 120 + Math.random() * 300;
+    const b = a * (0.6 + Math.random() * 0.3);
+
+    asteroids.push({
+      a,
+      b,
+      angle: Math.random() * Math.PI * 2,
+      size: 3 + Math.random() * 3,
+      trail: []
     });
   }
 }
 
 function drawStars(){
   stars.forEach(s=>{
+  function drawEarth() {
     ctx.beginPath();
     ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
     ctx.fillStyle=`rgba(255,255,255,${s.alpha})`;
@@ -119,6 +190,56 @@ function updateAsteroid(a){
   const r=Math.sqrt(dx*dx+dy*dy);
 
   const speed=GRAVITY_SCALE/Math.sqrt(r);
+  function drawTrails(a) {
+    if (a.trail.length < 2) return;
+
+    for (let i = 1; i < a.trail.length; i++) {
+      const p1 = a.trail[i - 1];
+      const p2 = a.trail[i];
+
+      const alpha = i / a.trail.length;
+
+      ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.45})`;
+      ctx.lineWidth = 0.8;
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+  }
+
+  function drawAsteroids() {
+    asteroids.forEach(a => {
+      const x = cx() + a.a * Math.cos(a.angle);
+      const y = cy() + a.b * Math.sin(a.angle);
+
+      const dx = x - cx();
+      const dy = y - cy();
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const speed = GRAVITY_SCALE / Math.sqrt(r);
+
+      if (showTrails) {
+        a.trail.push({ x, y });
+        if (a.trail.length > MAX_TRAIL_LENGTH) {
+          a.trail.shift();
+        }
+        drawTrails(a);
+      } else {
+        a.trail = [];
+      }
+
+      ctx.beginPath();
+      ctx.arc(x, y, a.size, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+
+      a.angle += speed;
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   a.vx=-Math.sin(a.angle)*speed*a.a;
   a.vy=Math.cos(a.angle)*speed*a.b;

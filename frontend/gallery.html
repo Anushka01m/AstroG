@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comet Gallery - Orbit Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .nav-links a:hover {
+            color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .nav-links a.active {
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .page-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+        }
+        .comet-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .comet-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 1;
+        }
+        .comet-card:hover::before {
+            opacity: 1;
+        }
+        .comet-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3), 
+                        0 0 30px rgba(59, 130, 246, 0.2);
+        }
+        .comet-img {
+            width: 100%;
+            height: 200px;
+            background: radial-gradient(circle at center, #1e293b, #020617);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .comet-img::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .comet-img span {
+            z-index: 2;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .comet-info {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .comet-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            background: linear-gradient(90deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .comet-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+        .tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+            color: #60a5fa;
+            margin-top: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .filter-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .filter-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-badge:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>🌠 Orbit Intelligence</h1>
+        <nav class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="tracker.html">🛰️ Tracker & Detection</a>
+            <a href="gallery.html" class="active">🌌 Gallery</a>
+        </nav>
+    </div>
+
+    <div class="gallery-container">
+        <div class="page-title">
+            <h2>Comet Archives</h2>
+            <p>Explore famous comets and asteroids throughout history</p>
+        </div>
+
+        <div class="filter-section">
+            <span class="filter-badge">☄️ All Comets</span>
+            <span class="filter-badge">⚠️ Hazardous</span>
+            <span class="filter-badge">🌟 Historic</span>
+            <span class="filter-badge">🚀 Recent</span>
+        </div>
+
+        <div class="gallery-grid">
+            <!-- Card 1 -->
+            <div class="comet-card">
+                <div class="comet-img"><span>☄️</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Halley's Comet</h3>
+                    <p class="comet-desc">Visible from Earth every 75–79 years. Last appeared in 1986, next projected for 2061.</p>
+                    <span class="tag">Next: 2061</span>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="comet-card">
+                <div class="comet-img"><span>🌑</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Oumuamua</h3>
+                    <p class="comet-desc">The first known interstellar object detected passing through the Solar System.</p>
+                    <span class="tag">Interstellar</span>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="comet-card">
+                <div class="comet-img"><span>✨</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Comet NEOWISE</h3>
+                    <p class="comet-desc">A long-period comet with a near-parabolic orbit discovered in March 2020.</p>
+                    <span class="tag">Discovered 2020</span>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="comet-card">
+                <div class="comet-img"><span>💫</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Hale-Bopp</h3>
+                    <p class="comet-desc">One of the most widely observed comets of the 20th century, visible to the naked eye for 18 months.</p>
+                    <span class="tag">Great Comet</span>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="comet-card">
+                <div class="comet-img"><span>🌌</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Shoemaker-Levy 9</h3>
+                    <p class="comet-desc">Broke apart in July 1992 and collided with Jupiter in July 1994.</p>
+                    <span class="tag">Impact Event</span>
+                </div>
+            </div>
+
+             <!-- Card 6 -->
+             <div class="comet-card">
+                <div class="comet-img"><span>☄️</span></div>
+                <div class="comet-info">
+                    <h3 class="comet-title">Comet Hyakutake</h3>
+                    <p class="comet-desc">"The Great Comet of 1996". Passed very close to Earth in March of that year.</p>
+                    <span class="tag">Close Approach</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+</body>
+</html>

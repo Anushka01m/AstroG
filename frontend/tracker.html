@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Tracker & Detection</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            background: rgba(15, 23, 42, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        .upload-area:hover::before {
+            left: 100%;
+        }
+        .upload-area:hover {
+            border-color: var(--accent-blue);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .btn-upload {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .btn-upload:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+        .btn-upload:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .video-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            display: none;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .nav-links a:hover {
+            color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .nav-links a.active {
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .card {
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(135deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            border-radius: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+        #orbitCanvas {
+            box-shadow: inset 0 0 40px rgba(59, 130, 246, 0.2);
+        }
+        .metric-box {
+            transition: all 0.3s ease;
+        }
+        .metric-box:hover {
+            transform: translateY(-3px);
+            background: rgba(59, 130, 246, 0.15);
+        }
+        .asteroid-item {
+            transition: all 0.3s ease;
+        }
+        .asteroid-item:hover {
+            transform: translateX(5px);
+            background: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>🌠 Orbit Intelligence</h1>
+        <nav class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="tracker.html" class="active">🛰️ Tracker & Detection</a>
+            <a href="gallery.html">🌌 Gallery</a>
+        </nav>
+    </div>
+
+    <div class="app-layout">
+        <!-- Main Visualization Area (Orbit Canvas) -->
+        <div class="card card-orbit" style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">Orbital Simulation</h2>
+                <div class="sim-controls" style="display: flex; gap: 10px; align-items: center;">
+                    <button id="trailToggle" class="btn-small">Hide Trails</button>
+                    <button id="playPause" class="btn-small">Pause</button>
+                    <div style="display: flex; align-items: center; gap: 5px; color: var(--text-secondary); font-size: 0.9em;">
+                        <span>Speed</span>
+                        <input type="range" id="speedSlider" min="1" max="100" value="50" style="width: 80px;">
+                    </div>
+                </div>
+            </div>
+            <canvas id="orbitCanvas"></canvas>
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-value" id="trackedCount">0</div>
+                    <div class="metric-label">Objects Tracked</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value" id="hazardousCount" style="color: #f97373;">0</div>
+                    <div class="metric-label">Hazardous</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">0.4 AU</div>
+                    <div class="metric-label">Min Distance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NASA Feed Column (Right Side) -->
+        <div class="card">
+            <h2>Nearby Objects</h2>
+            <div id="asteroidList" class="asteroid-list">
+                <!-- Data will be populated here -->
+                <div class="hint">Loading NASA data...</div>
+            </div>
+        </div>
+
+        <!-- Detection / Upload Section (Bottom Left - using span 2 to fit under orbit) -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>AI Detection</h2>
+            <div class="video-container" id="videoResultContainer">
+                <video id="processedVideo" controls></video>
+            </div>
+            
+            <div class="upload-area" id="dropZone">
+                <div class="upload-icon">📁</div>
+                <p>Drag & Drop satellite video footage here</p>
+                <p class="hint">or click to browse (MP4, AVI)</p>
+                <input type="file" id="fileInput" accept="video/*" hidden>
+            </div>
+            
+            <button id="uploadBtn" class="btn-upload">Process Video</button>
+            <div id="uploadStatus" class="hint"></div>
+        </div>
+        
+        <!-- Info Panel (Bottom Right) -->
+        <div class="card">
+            <h2>System Status</h2>
+            <div class="asteroid-item">
+                <div class="asteroid-name">Backend Connection</div>
+                <div class="asteroid-meta" id="connectionStatus">Checking...</div>
+            </div>
+            <div class="asteroid-item" style="margin-top: 10px;">
+                <div class="asteroid-name">Model Confidence</div>
+                <div class="asteroid-meta">98.4%</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

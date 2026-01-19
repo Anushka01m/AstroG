@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asteroid Orbit Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Asteroid Orbit Tracker 🚀</h1>
+    </header>
+
+    <main class="app-layout">
+      <section class="card card-orbit">
+        <h2>Live Orbit Visualization</h2>
+        <canvas id="orbitCanvas"></canvas>
+        <p class="hint">
+          Blue: Low-risk NEO | Orange: Medium-risk NEO
+        </p>
+      </section>
+
+      <section class="card card-asteroids">
+        <h2>Nearby Asteroids</h2>
+        <div id="asteroidList" class="asteroid-list"></div>
+        <p id="asteroidError" class="error hidden">
+          Connection error – using mock data.
+        </p>
+      </section>
+
+      <section class="card card-dashboard">
+        <h2>Risk Metrics</h2>
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <div id="metricTotal" class="metric-value">0</div>
+            <div class="metric-label">Total NEOs</div>
+          </div>
+          <div class="metric-box">
+            <div id="metricAvgDistance" class="metric-value">0 LD</div>
+            <div class="metric-label">Avg Distance</div>
+          </div>
+          <div class="metric-box">
+            <div id="metricAvgVelocity" class="metric-value">0 km/s</div>
+            <div class="metric-label">Avg Velocity</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -64,6 +64,77 @@ def detect_motion(video_path: str = None) -> List[Dict[str, Any]]:
     cap.release()
     return results
 
+def process_and_annotate_video(video_bytes: bytes) -> str:
+    """
+    Process video bytes, detect motion, annotate frames, and return path to processed video.
+    """
+    # 1. Save input to temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
+        tmp_file.write(video_bytes)
+        input_path = tmp_file.name
+
+    try:
+        # 2. Run detection
+        detections = detect_motion(input_path)
+        
+        # 3. Setup Video Processing
+        cap = cv2.VideoCapture(input_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        # Create output path
+        output_fd, output_path = tempfile.mkstemp(suffix='.webm')
+        os.close(output_fd) # Close file descriptor, we'll open with cv2
+        
+        # Define codec and create VideoWriter
+        fourcc = cv2.VideoWriter_fourcc(*'vp80') # vp80 for webm is browser safe
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+        
+        # Pre-process stats
+        speeds = [d['speed_km_s'] for d in detections]
+        avg_speed = sum(speeds) / len(speeds) if speeds else 0
+        detections_map = {d['frame']: d for d in detections}
+        
+        frame_id = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+                
+            # Annotation Logic
+            if frame_id in detections_map:
+                data = detections_map[frame_id]
+                x, y = data['x'], data['y']
+                speed = data['speed_km_s']
+                
+                # Draw Circle
+                cv2.circle(frame, (x, y), 20, (0, 0, 255), 2)
+                
+                # Draw Speed Text
+                label = f"Speed: {speed} km/s"
+                cv2.putText(frame, label, (x + 25, y - 10), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            
+            # Global Stats Overlay (Top-Left)
+            cv2.putText(frame, f"AVG SPEED: {avg_speed:.2f} km/s", (10, 30),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            cv2.putText(frame, f"OBJECTS: {len(detections)}", (10, 60),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+            out.write(frame)
+            frame_id += 1
+            
+        cap.release()
+        out.release()
+        
+        return output_path
+        
+    finally:
+        # Clean up input file only
+        if os.path.exists(input_path):
+            os.remove(input_path)
+
 def detect_motion_from_bytes(video_bytes: bytes) -> Dict[str, Any]:
     """
     Detect moving objects from uploaded video bytes.

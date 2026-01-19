@@ -1,0 +1,147 @@
+:root {
+  --card: rgba(15, 23, 42, 0.9);
+  --border: rgba(148, 163, 184, 0.4);
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --accent-blue: #3b82f6;
+  --accent-orange: #f97316;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
+  color: var(--text-main);
+  padding: 24px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  background: linear-gradient(90deg, #60a5fa, #a855f7, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.app-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.4fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px 18px 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.card-orbit {
+  grid-column: span 2;
+}
+
+#orbitCanvas {
+  width: 100%;
+  height: 320px;
+  display: block;
+  border-radius: 12px;
+  background: radial-gradient(circle at top, #020617 0, #000 70%);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.asteroid-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 6px;
+}
+
+.asteroid-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border-left: 4px solid var(--accent-blue);
+}
+
+.asteroid-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.asteroid-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.metric-box {
+  padding: 10px 8px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.error {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  text-align: center;
+  color: #f97373;
+}
+
+.hidden {
+  display: none;
+}

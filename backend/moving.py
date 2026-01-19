@@ -1,1 +1,1 @@
-VIDEO_PATH=r"C:\Users\HP\Videos\SPACERECORDING.mp4"
+VIDEO_PATH = r"C:/Users/manas/Downloads/Moving comet.mp4"

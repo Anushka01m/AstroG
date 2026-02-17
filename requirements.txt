@@ -5,3 +5,5 @@ requests
 python-dotenv
 opencv-python
 numpy
+aiofiles
+python-multipart
